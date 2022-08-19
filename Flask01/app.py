@@ -2,27 +2,9 @@ from flask import Flask
 from flask_restful import abort, Api, fields, marshal_with, reqparse, Resource
 from datetime import datetime
 from models import NotificationModel
+from notification_repository import NotificationManager
 from http_status import HttpStatus
 from pytz import utc
-
-
-class NotificationManager:
-    last_id = 0
-
-    def __init__(self):
-        self.notifications = {}
-
-    def insert_notification(self, notification):
-        self.__class__.last_id += 1
-        notification.id = self.__class__.last_id
-        self.notifications[self.__class__.last_id] = notification
-
-    def get_notification(self, id):
-        return self.notifications[id]
-
-    def delete_notification(self, id):
-        del self.notifications[id]
-
 
 notification_fields = {
     'id': fields.Integer,
@@ -38,7 +20,7 @@ notification_fields = {
 notification_manager = NotificationManager()
 
 
-class Notification(Resource):
+class NotificationController(Resource):
     def abort_if_notification_not_found(self, id):
         if id not in notification_manager.notifications:
             abort(
@@ -77,7 +59,7 @@ class Notification(Resource):
         return notification
 
 
-class NotificationList(Resource):
+class NotificationListController(Resource):
     @marshal_with(notification_fields)
     def get(self):
         return [v for v in notification_manager.notifications.values()]
@@ -102,8 +84,8 @@ class NotificationList(Resource):
 
 app = Flask(__name__)
 service = Api(app)
-service.add_resource(NotificationList, '/notifications/')
-service.add_resource(Notification, '/notifications/<int:id>', endpoint='notification_endpoint')
+service.add_resource(NotificationListController, '/notifications/')
+service.add_resource(NotificationController, '/notifications/<int:id>', endpoint='notification_endpoint')
 
 if __name__ == '__main__':
     app.run(debug=True)
