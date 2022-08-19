@@ -1,0 +1,15 @@
+### Send POST request with json body
+POST localhost:5000/notifications
+Content-Type: application/json
+
+{
+      "message": "eSports competition starts in 2 minutes",
+      "ttl": 20,
+      "notification_category": "Information"
+}
+
+<> 2022-08-19T140700.201.json
+
+
+
+###
