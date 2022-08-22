@@ -1,9 +1,8 @@
 from flask import Blueprint, request, make_response
 from flask_restful import Api, Resource
 from http_status import HttpStatus
-from models import orm, NotificationCategory, NotificationCategorySchema, Notification, NotificationSchema
+from models import db, NotificationCategory, NotificationCategorySchema, Notification, NotificationSchema
 from sqlalchemy.exc import SQLAlchemyError
-
 
 service_blueprint = Blueprint('service', __name__)
 notification_category_schema = NotificationCategorySchema()
@@ -28,7 +27,8 @@ class NotificationResource(Resource):
             notification.displayed_times = notification_dict['displayed_times']
         if 'displayed_once' in notification_dict and notification_dict['displayed_once'] is not None:
             notification.displayed_once = notification_dict['displayed_once']
-        dumped_notification, dump_errors = notification_schema.dump(message)
+
+        dumped_notification, dump_errors = notification_schema.dump(notification)
         if dump_errors:
             return dump_errors, HttpStatus.bad_request_400.value
         validate_errors = notification_schema.validate(dumped_notification)
@@ -38,10 +38,10 @@ class NotificationResource(Resource):
             notification.update()
             return self.get(id)
         except SQLAlchemyError as e:
-                orm.session.rollback()
-                response = {"error": str(e)}
-                return response, HttpStatus.bad_request_400.value
-         
+            db.session.rollback()
+            response = {"error": str(e)}
+            return response, HttpStatus.bad_request_400.value
+
     def delete(self, id):
         notification = Notification.query.get_or_404(id)
         try:
@@ -49,9 +49,9 @@ class NotificationResource(Resource):
             response = make_response()
             return response, HttpStatus.no_content_204.value
         except SQLAlchemyError as e:
-                orm.session.rollback()
-                response = {"error": str(e)}
-                return response, HttpStatus.unauthorized_401.value
+            db.session.rollback()
+            response = {"error": str(e)}
+            return response, HttpStatus.unauthorized_401.value
 
 
 class NotificationListResource(Resource):
@@ -74,7 +74,7 @@ class NotificationListResource(Resource):
             if notification_category is None:
                 # Create a new NotificationCategory
                 notification_category = NotificationCategory(name=notification_category_name)
-                orm.session.add(notification_category)
+                db.session.add(notification_category)
             # Now that we are sure we have a notification category,
             # we can create a new Notification
             notification = Notification(
@@ -86,7 +86,7 @@ class NotificationListResource(Resource):
             dump_result = notification_schema.dump(query)
             return dump_result, HttpStatus.created_201.value
         except SQLAlchemyError as e:
-            orm.session.rollback()
+            db.session.rollback()
             response = {"error": str(e)}
             return response, HttpStatus.bad_request_400.value
 
@@ -106,16 +106,17 @@ class NotificationCategoryResource(Resource):
         errors = notification_category_schema.validate(notification_category_dict)
         if errors:
             return errors, HttpStatus.bad_request_400.value
+
         try:
-            if 'name' in notification_category_dict and notification_category_dic['name'] is not None:
+            if 'name' in notification_category_dict and notification_category_dict['name'] is not None:
                 notification_category.name = notification_category_dict['name']
             notification_category.update()
             return self.get(id)
         except SQLAlchemyError as e:
-                orm.session.rollback()
-                response = {"error": str(e)}
-                return response, HttpStatus.bad_request_400.value
-         
+            db.session.rollback()
+            response = {"error": str(e)}
+            return response, HttpStatus.bad_request_400.value
+
     def delete(self, id):
         notification_category = NotificationCategory.query.get_or_404(id)
         try:
@@ -123,9 +124,9 @@ class NotificationCategoryResource(Resource):
             response = make_response()
             return response, HttpStatus.no_content_204.value
         except SQLAlchemyError as e:
-                orm.session.rollback()
-                response = {"error": str(e)}
-                return response, HttpStatus.unauthorized_401.value
+            db.session.rollback()
+            response = {"error": str(e)}
+            return response, HttpStatus.unauthorized_401.value
 
 
 class NotificationCategoryListResource(Resource):
@@ -152,16 +153,12 @@ class NotificationCategoryListResource(Resource):
         except SQLAlchemyError as e:
             print("Error")
             print(e)
-            orm.session.rollback()
+            db.session.rollback()
             response = {"error": str(e)}
             return response, HttpStatus.bad_request_400.value
 
 
-service.add_resource(NotificationCategoryListResource, 
-    '/notification_categories/')
-service.add_resource(NotificationCategoryResource, 
-    '/notification_categories/<int:id>')
-service.add_resource(NotificationListResource, 
-    '/notifications/')
-service.add_resource(NotificationResource, 
-    '/notifications/<int:id>')
+service.add_resource(NotificationCategoryListResource, '/notification_categories/')
+service.add_resource(NotificationCategoryResource, '/notification_categories/<int:id>')
+service.add_resource(NotificationListResource, '/notifications/')
+service.add_resource(NotificationResource, '/notifications/<int:id>')
