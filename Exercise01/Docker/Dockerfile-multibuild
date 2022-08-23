@@ -12,23 +12,23 @@ RUN apt update && \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade -r requirements.txt
+COPY ../requirements.txt .
+RUN /opt/venv/bin/pip install --no-cache-dir --upgrade -r requirements.txt
 
 
 # final stage
-FROM python:3.10.0-slim
+FROM python:3.10.6-alpine3.16
 
 COPY --from=builder /opt/venv /opt/venv
 
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN addgroup --gid 1001 --system app && \
-    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system --group app
+    adduser --no-create-home --shell /bin/false --disabled-password --uid 1001 --system app
 
 USER app
 
 WORKDIR /code
-COPY ./app /code/app
+COPY ../app /code/app
 WORKDIR /code/app
 CMD ["gunicorn", "--conf", "gunicorn_conf.py", "--bind", "0.0.0.0:80", "main:app"]
