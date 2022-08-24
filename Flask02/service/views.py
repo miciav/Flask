@@ -5,9 +5,10 @@ from models import db, NotificationCategory, NotificationCategorySchema, Notific
 from sqlalchemy.exc import SQLAlchemyError
 
 service_blueprint = Blueprint('service', __name__)
+service = Api(service_blueprint)
 notification_category_schema = NotificationCategorySchema()
 notification_schema = NotificationSchema()
-service = Api(service_blueprint)
+
 
 
 class NotificationResource(Resource):

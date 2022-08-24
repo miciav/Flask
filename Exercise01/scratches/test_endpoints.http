@@ -1,0 +1,16 @@
+### Send POST request with json body
+POST http://localhost:5000/api/user
+Content-Type: application/json
+
+{
+  "name": "mario"
+}
+
+<> 2022-08-24T172651.201.json
+
+####
+GET http://localhost:5000/api/user/1
+Accept: application/json
+
+<> 2022-08-24T173307.200.json
+
