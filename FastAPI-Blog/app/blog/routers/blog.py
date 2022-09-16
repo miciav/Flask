@@ -1,8 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends, status, HTTPException
-from blog.routers import schemas
-from blog.db import models
-from blog.db.sessionUtils import get_db
+from app.blog.routers import schemas
+from app.blog.db import models
+from app.blog.db.sessionUtils import get_db
 from sqlalchemy.orm import Session
 
 blog_router = APIRouter(
@@ -11,7 +11,7 @@ blog_router = APIRouter(
 )
 
 
-@blog_router.get('/', response_model=List[dtos.ShowBlog])
+@blog_router.get('/', response_model=List[schemas.ShowBlog])
 def all_blogs(db: Session = Depends(get_db)):
     """
     Get all blog entries
@@ -21,7 +21,7 @@ def all_blogs(db: Session = Depends(get_db)):
 
 
 @blog_router.post('/', status_code=status.HTTP_201_CREATED)
-def create(request: dtos.Blog, db: Session = Depends(get_db)):
+def create(request: schemas.Blog, db: Session = Depends(get_db)):
     new_blog = models.Blog(title=request.title, body=request.body, user_id=1)
     db.add(new_blog)
     db.commit()
@@ -43,7 +43,7 @@ def destroy(id: int, db: Session = Depends(get_db)):
 
 
 @blog_router.put('/{id}', status_code=status.HTTP_202_ACCEPTED)
-def update(id: int, request: dtos.Blog, db: Session = Depends(get_db)):
+def update(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id)
 
     if not blog.first():
@@ -54,7 +54,7 @@ def update(id: int, request: dtos.Blog, db: Session = Depends(get_db)):
     return 'updated'
 
 
-@blog_router.get('/{id}', status_code=200, response_model=dtos.ShowBlog)
+@blog_router.get('/{id}', status_code=200, response_model=schemas.ShowBlog)
 def show(id: int, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()
     if not blog:

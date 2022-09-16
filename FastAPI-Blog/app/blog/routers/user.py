@@ -1,9 +1,9 @@
-from blog.routers import schemas
-from blog.db import models
-from blog.db.sessionUtils import get_db
+from app.blog.routers import schemas
+from app.blog.db import models
+from app. blog.db.sessionUtils import get_db
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, status, HTTPException
-from blog.routers.utils import Hash
+from app.blog.routers.utils import Hash
 
 user_router = APIRouter(
     prefix="/user",

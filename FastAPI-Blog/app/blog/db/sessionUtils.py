@@ -1,4 +1,4 @@
-from blog.db import session_local
+from app.blog.db import session_local
 
 
 def get_db():
