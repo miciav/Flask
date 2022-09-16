@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, status, HTTPException
-from blog.routers import dtos
+from blog.routers import schemas
 from blog.db import models
 from blog.db.sessionUtils import get_db
 from sqlalchemy.orm import Session

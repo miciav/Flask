@@ -1,6 +1,9 @@
 from typing import List
 from pydantic import BaseModel
 
+"""
+This file contains the definitions of DATA Transfer Objects that in OpenAPI are called Schemas
+"""
 
 class BlogBase(BaseModel):
     title: str
