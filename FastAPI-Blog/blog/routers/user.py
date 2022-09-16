@@ -1,18 +1,18 @@
-from .. import database, DTOs, models
+from blog.routers import dtos
+from blog.db import models
+from blog.db.sessionUtils import get_db
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends, status, HTTPException
-from ..hashing import Hash
+from blog.routers.utils import Hash
 
-userRouter = APIRouter(
+user_router = APIRouter(
     prefix="/user",
     tags=['Users']
 )
 
-get_db = database.get_db
 
-
-@userRouter.post('/', response_model=DTOs.ShowUser)
-def create_user(request: DTOs.User, db: Session = Depends(get_db)):
+@user_router.post('/', response_model=dtos.ShowUser)
+def create_user(request: dtos.User, db: Session = Depends(get_db)):
     new_user = models.User(name=request.name, email=request.email, password=Hash.bcrypt(request.password))
     db.add(new_user)
     db.commit()
@@ -20,7 +20,7 @@ def create_user(request: DTOs.User, db: Session = Depends(get_db)):
     return new_user
 
 
-@userRouter.get('/{id}', response_model=DTOs.ShowUser)
+@user_router.get('/{id}', response_model=dtos.ShowUser)
 def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:

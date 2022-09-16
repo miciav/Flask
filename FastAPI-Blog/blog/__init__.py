@@ -1,9 +1,4 @@
-from blog import models
-from blog.database import engine
-from blog.routers import blog, user
+from blog.routers import user_router, blog_router
+from blog.db import Base, engine
 
 
-userRouter = user.userRouter
-blogRouter = blog.router
-
-models.Base.metadata.create_all(engine)
