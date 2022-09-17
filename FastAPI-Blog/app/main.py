@@ -5,4 +5,7 @@ app = FastAPI()
 app.include_router(user_router)
 app.include_router(blog_router)
 
-Base.metadata.create_all(engine)
+try:
+    Base.metadata.create_all(engine, checkfirst=True)
+except:
+    pass
