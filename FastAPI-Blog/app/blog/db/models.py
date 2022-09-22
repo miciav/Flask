@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, inspect, Table
 from app.blog.db import Base
 from sqlalchemy.orm import relationship
+
 
 
 class Blog(Base):
@@ -12,7 +13,7 @@ class Blog(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
 
     creator = relationship("User", back_populates="blogs")
-
+    __mapper_args__ = {"eager_defaults": True}
 
 class User(Base):
     __tablename__ = 'users'
@@ -23,3 +24,5 @@ class User(Base):
     password = Column(String)
 
     blogs = relationship('Blog', back_populates="creator")
+
+
